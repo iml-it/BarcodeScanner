@@ -13,12 +13,10 @@ namespace WinRTBarcodeReader
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-
     using Windows.Foundation;
     using Windows.Media.Capture;
     using Windows.Media.MediaProperties;
     using Windows.Storage.Streams;
-
     using ZXing;
 
     /// <summary>
@@ -71,10 +69,15 @@ namespace WinRTBarcodeReader
         public Reader(MediaCapture capture, uint width, uint height)
         {
             this.capture = capture;
-            this.encodingProps = new ImageEncodingProperties { Subtype = "BMP", Width = width, Height = height};
+            this.encodingProps = new ImageEncodingProperties { Subtype = "BMP", Width = width, Height = height };
             this.barcodeFound = false;
             this.cancelSearch = new CancellationTokenSource();
         }
+
+        // Default constructor only needed so an ActivatableClass reference is added to AppxManifest.xml
+        // This is possibly a bug in VS2013.4:
+        // https://social.msdn.microsoft.com/Forums/windowsapps/en-US/98c94927-d786-4122-bd4e-44131ae9419c/class-not-registered-exception-when-calling-a-winrt-compontent-after-migrating-to-vs20134?forum=winappswithhtml5
+        public Reader() { }
 
         #endregion
 
@@ -108,6 +111,7 @@ namespace WinRTBarcodeReader
         private async Task<Result> Read()
         {
             Result result = null;
+
             while (!this.barcodeFound)
             {
                 try
@@ -137,28 +141,28 @@ namespace WinRTBarcodeReader
             Result result = null;
             await Task.Run(
                 async () =>
+                {
+                    this.imageStream = new InMemoryRandomAccessStream();
+                    await this.capture.CapturePhotoToStreamAsync(this.encodingProps, this.imageStream);
+                    await this.imageStream.FlushAsync();
+
+                    this.datareader = new DataReader(this.imageStream);
+                    await this.datareader.LoadAsync((uint)this.imageStream.Size);
+                    var bitmap = new byte[this.encodingProps.Width * this.encodingProps.Height * 4];
+                    uint index = 0;
+                    while (this.datareader.UnconsumedBufferLength > 0)
                     {
-                        this.imageStream = new InMemoryRandomAccessStream();
-                        await this.capture.CapturePhotoToStreamAsync(this.encodingProps, this.imageStream);
-                        await this.imageStream.FlushAsync();
+                        bitmap[index] = datareader.ReadByte();
+                        index++;
+                    }
 
-                        this.datareader = new DataReader(this.imageStream);
-                        await this.datareader.LoadAsync((uint)this.imageStream.Size);
-                        var bitmap = new byte[this.encodingProps.Width * this.encodingProps.Height * 4];
-                        uint index = 0;
-                        while (this.datareader.UnconsumedBufferLength > 0)
-                        {
-                            bitmap[index] = datareader.ReadByte();
-                            index++;
-                        }
+                    result = await this.DecodeBitmap(bitmap);
 
-                        result = await this.DecodeBitmap(bitmap);
-
-                        if (result != null)
-                        {
-                            this.barcodeFound = true;
-                        }
-                    },
+                    if (result != null)
+                    {
+                        this.barcodeFound = true;
+                    }
+                },
                 cancelToken).ConfigureAwait(false);
             return result;
         }
@@ -176,14 +180,14 @@ namespace WinRTBarcodeReader
             {
                 await Task.Run(
                     () =>
-                        {
-                            var c = new BarcodeReader();
-                            result = c.Decode(
-                                bitmap,
-                                (int)this.encodingProps.Width,
-                                (int)this.encodingProps.Height,
-                                format);
-                        }).ConfigureAwait(false);
+                    {
+                        var c = new BarcodeReader();
+                        result = c.Decode(
+                            bitmap,
+                            (int)this.encodingProps.Width,
+                            (int)this.encodingProps.Height,
+                            format);
+                    }).ConfigureAwait(false);
             }
             catch (Exception)
             {

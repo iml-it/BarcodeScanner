@@ -21,6 +21,7 @@ module.exports = {
         var capturePreview = null,
             captureCancelButton = null,
             capture = null,
+            wrapper = null,
             captureSettings = null,
             reader = null,
 
@@ -35,8 +36,10 @@ module.exports = {
         function createPreview() {
 
             // Create fullscreen preview
+            wrapper = document.createElement("div");
             capturePreview = document.createElement("video");
-            capturePreview.style.cssText = "position: absolute; left: 0; top: 0; width: 100%; height: 100%";
+            wrapper.style.cssText = "position: absolute; border: 1px solid red; top: 25%; left: 25%; height: 50vw; width: 50vw; overflow: hidden"
+            capturePreview.style.cssText = "width: 350%; margin-left: -125%; margin-top: -50%"
 
             // Create cancel button
             captureCancelButton = document.createElement("button");
@@ -48,6 +51,7 @@ module.exports = {
 
             captureSettings = new Windows.Media.Capture.MediaCaptureInitializationSettings();
             captureSettings.streamingCaptureMode = Windows.Media.Capture.StreamingCaptureMode.video;
+            captureSettings.photoCaptureSource = Windows.Media.Capture.PhotoCaptureSource.videoPreview;
         }
 
         /**
@@ -55,11 +59,14 @@ module.exports = {
          */
         function startPreview() {
             capture.initializeAsync(captureSettings).done(function () {
+                capture.setPreviewRotation(Windows.Media.Capture.VideoRotation.clockwise90Degrees);
+
                 capturePreview.src = URL.createObjectURL(capture);
                 capturePreview.play();
                 
                 // Insert preview frame and controls into page
-                document.body.appendChild(capturePreview);
+                wrapper.appendChild(capturePreview);
+                document.body.appendChild(wrapper);
                 document.body.appendChild(captureCancelButton);
 
                 startBarcodeSearch();
@@ -85,7 +92,7 @@ module.exports = {
         function destroyPreview() {
             capturePreview.pause();
             capturePreview.src = null;
-            [capturePreview, captureCancelButton].forEach(function (elem) {
+            [wrapper, captureCancelButton].forEach(function (elem) {
                 if (elem /* && elem in document.body.childNodes */) {
                     document.body.removeChild(elem);
                 }
