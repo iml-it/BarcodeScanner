@@ -121,6 +121,7 @@ namespace WinRTBarcodeReader
                 catch (OperationCanceledException)
                 {
                     result = null;
+                    break;
                 }
             }
 
