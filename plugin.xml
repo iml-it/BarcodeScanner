@@ -8,11 +8,11 @@
     <license>MIT</license>
 
     <repo>https://github.com/wildabeast/BarcodeScanner</repo>
-    <issue>https://github.com/wildabeast/BarcodeScanner/issues</issue> 
-    
+    <issue>https://github.com/wildabeast/BarcodeScanner/issues</issue>
+
     <engines>
         <engine name="cordova" version=">=3.0.0" />
-    </engines>    
+    </engines>
 
     <js-module src="www/barcodescanner.js" name="BarcodeScanner">
         <clobbers target="cordova.plugins.barcodeScanner" />
@@ -48,7 +48,7 @@
         <!--
         <source-file src="R.java" target-dir="src/com/google/zxing/client/android" />
         -->
-        
+
         <!--
         <config-file target="res/xml/plugins.xml" parent="/plugins">
             <plugin name="BarcodeScanner" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
@@ -103,7 +103,7 @@
             search: (src/android/LibraryProject/(.+?)/[^/]+)$
             replace: <source-file src="$1" target-dir="$2"/>
         -->
-        
+
         <source-file src="src/android/LibraryProject/res/drawable/launcher_icon.png" target-dir="res/drawable"/>
         <source-file src="src/android/LibraryProject/res/drawable/share_via_barcode.png" target-dir="res/drawable"/>
         <source-file src="src/android/LibraryProject/res/drawable/shopper_icon.png" target-dir="res/drawable"/>
@@ -126,7 +126,6 @@
         <source-file src="src/android/LibraryProject/res/menu/capture.xml" target-dir="res/menu"/>
         <source-file src="src/android/LibraryProject/res/menu/encode.xml" target-dir="res/menu"/>
         <source-file src="src/android/LibraryProject/res/menu/history.xml" target-dir="res/menu"/>
-        <source-file src="src/android/LibraryProject/res/raw/beep.ogg" target-dir="res/raw"/>
         <source-file src="src/android/LibraryProject/res/values/arrays.xml" target-dir="res/values"/>
         <source-file src="src/android/LibraryProject/res/values/colors.xml" target-dir="res/values"/>
         <source-file src="src/android/LibraryProject/res/values/dimens.xml" target-dir="res/values"/>
